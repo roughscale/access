@@ -6,7 +6,8 @@ require 'securerandom'
 require 'uri'
 
 def get_exploit_info(exploit_name)
-    exploit = self.framework.modules.create(exploit_name)
+  exploit = self.framework.modules.create(exploit_name)
+  if !exploit.nil?
     description = get_exploit_description(exploit)
     privileged = exploit.privileged ? "Elevated" : ""
     platforms = exploit.target_platform.platforms.map {|plat| plat.realname }
@@ -26,11 +27,13 @@ def get_exploit_info(exploit_name)
         "module" => exploit.realname,
         "params" => params
     }
+  end
 end
 
 def get_exploit_description(exploit)
     description = Rex::Text.compress(exploit.description)
     description << "\n\n"
+
 
     if (exploit.options.has_options?)
       description << "Basic options:\n\n"
@@ -107,11 +110,13 @@ c2_key = ARGV.shift || 'ADMIN123'
 
 for exploit_name in self.framework.exploits.keys
     exploit = get_exploit_info(exploit_name)
-    ability = convert_to_ability(exploit)
-    response = save_ability(ability, c2_uri, c2_key)
+    if !exploit.nil?
+      ability = convert_to_ability(exploit)
+      response = save_ability(ability, c2_uri, c2_key)
+    end
 end
 
-exit(true)
+#exit(true)
 
 </ruby>
 
